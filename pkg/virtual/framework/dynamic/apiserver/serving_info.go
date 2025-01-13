@@ -112,9 +112,8 @@ func CreateServingInfoFor(genericConfig genericapiserver.CompletedConfig, apiRes
 		apiResourceSchema,
 		apiResourceVersion,
 		builder.Options{
-			V2: false,
-			SkipFilterSchemaForKubectlOpenAPIV2Validation: true,
-			AllowNonStructural:                            false})
+			V2:                 false,
+			AllowNonStructural: false})
 	if err != nil {
 		return nil, err
 	}
