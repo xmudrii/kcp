@@ -25,6 +25,7 @@ import (
 	"reflect"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/validation/field"
@@ -93,13 +94,6 @@ func (o *apiBindingAdmission) Admit(ctx context.Context, a admission.Attributes,
 		return apierrors.NewInternalError(err)
 	}
 
-	if a.GetResource().GroupResource() == apisv1alpha1.Resource("apibindings") {
-		ab := &apisv1alpha1.APIBinding{}
-		if err := validateOverhangingPermissionClaims(ctx, a, ab); err != nil {
-			return admission.NewForbidden(a, err)
-		}
-	}
-
 	if a.GetResource().GroupResource() != apisv1alpha2.Resource("apibindings") {
 		return nil
 	}
@@ -110,8 +104,36 @@ func (o *apiBindingAdmission) Admit(ctx context.Context, a admission.Attributes,
 	}
 
 	apiBinding := &apisv1alpha2.APIBinding{}
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, apiBinding); err != nil {
-		return fmt.Errorf("failed to convert unstructured to APIBinding: %w", err)
+	switch a.GetKind().GroupVersion().Version {
+	case apisv1alpha1.SchemeGroupVersion.Version:
+		// v1alpha1 is deprecated, but we still need to support it for a while
+		// for backward compatibility.
+
+		ab := &apisv1alpha1.APIBinding{}
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, ab); err != nil {
+			return fmt.Errorf("failed to convert unstructured to APIBinding: %w", err)
+		}
+
+		// Before we convert to v1alpha2, we need to validate the annotations overhanging:
+		if err := validateOverhangingPermissionClaims(ctx, a, ab); err != nil {
+			return admission.NewForbidden(a, err)
+		}
+
+		err := apisv1alpha2.Convert_v1alpha1_APIBinding_To_v1alpha2_APIBinding(ab, apiBinding, nil)
+		if err != nil {
+			return fmt.Errorf("failed to convert v1alpha1 APIBinding to v1alpha2: %w", err)
+		}
+	case apisv1alpha2.SchemeGroupVersion.Version:
+		// v1alpha2 is the current version.
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, apiBinding); err != nil {
+			return fmt.Errorf("failed to convert unstructured to APIBinding: %w", err)
+		}
+	default:
+		return admission.NewForbidden(a,
+			field.Invalid(
+				field.NewPath("apiVersion"),
+				a.GetKind().GroupVersion().String(),
+				fmt.Sprintf("unsupported API version %s", a.GetKind().GroupVersion().String())))
 	}
 
 	if apiBinding.Spec.Reference.Export == nil {
@@ -171,12 +193,37 @@ func (o *apiBindingAdmission) Admit(ctx context.Context, a admission.Attributes,
 		)
 	}
 
-	// write back
-	raw, err := runtime.DefaultUnstructuredConverter.ToUnstructured(apiBinding)
-	if err != nil {
-		return err
+	// convert to original version and write back
+	switch a.GetKind().GroupVersion().Version {
+	case apisv1alpha1.SchemeGroupVersion.Version:
+		v1 := &apisv1alpha1.APIBinding{
+			TypeMeta: metav1.TypeMeta{
+				APIVersion: apisv1alpha1.SchemeGroupVersion.String(),
+				Kind:       "APIBinding",
+			},
+		}
+		if err := apisv1alpha2.Convert_v1alpha2_APIBinding_To_v1alpha1_APIBinding(apiBinding, v1, nil); err != nil {
+			return fmt.Errorf("failed to convert v1alpha2 APIBinding to v1alpha1: %w", err)
+		}
+
+		raw, err := runtime.DefaultUnstructuredConverter.ToUnstructured(v1)
+		if err != nil {
+			return err
+		}
+		u.Object = raw
+	case apisv1alpha2.SchemeGroupVersion.Version:
+		raw, err := runtime.DefaultUnstructuredConverter.ToUnstructured(apiBinding)
+		if err != nil {
+			return err
+		}
+		u.Object = raw
+	default: // should not happen as we validated above, but to be on the safe side
+		return admission.NewForbidden(a,
+			field.Invalid(
+				field.NewPath("apiVersion"),
+				a.GetKind().GroupVersion().String(),
+				fmt.Sprintf("unsupported API version %s", a.GetKind().GroupVersion().String())))
 	}
-	u.Object = raw
 
 	return nil
 }
@@ -199,8 +246,36 @@ func (o *apiBindingAdmission) Validate(ctx context.Context, a admission.Attribut
 	}
 
 	apiBinding := &apisv1alpha2.APIBinding{}
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, apiBinding); err != nil {
-		return fmt.Errorf("failed to convert unstructured to APIBinding: %w", err)
+	switch a.GetKind().GroupVersion().Version {
+	case apisv1alpha1.SchemeGroupVersion.Version:
+		// v1alpha1 is deprecated, but we still need to support it for a while
+		// for backward compatibility.
+
+		ab := &apisv1alpha1.APIBinding{}
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, ab); err != nil {
+			return fmt.Errorf("failed to convert unstructured to APIBinding: %w", err)
+		}
+
+		// Before we convert to v1alpha2, we need to validate the annotations overhanging:
+		if err := validateOverhangingPermissionClaims(ctx, a, ab); err != nil {
+			return admission.NewForbidden(a, err)
+		}
+
+		err := apisv1alpha2.Convert_v1alpha1_APIBinding_To_v1alpha2_APIBinding(ab, apiBinding, nil)
+		if err != nil {
+			return fmt.Errorf("failed to convert v1alpha1 APIBinding to v1alpha2: %w", err)
+		}
+	case apisv1alpha2.SchemeGroupVersion.Version:
+		// v1alpha2 is the current version.
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, apiBinding); err != nil {
+			return fmt.Errorf("failed to convert unstructured to APIBinding: %w", err)
+		}
+	default:
+		return admission.NewForbidden(a,
+			field.Invalid(
+				field.NewPath("apiVersion"),
+				a.GetKind().GroupVersion().String(),
+				fmt.Sprintf("unsupported API version %s", a.GetKind().GroupVersion().String())))
 	}
 
 	// Object validation
