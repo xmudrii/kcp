@@ -79,6 +79,12 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/kcp-dev/sdk/apis/apis/v1alpha2.BoundAPIResource":                            schema_sdk_apis_apis_v1alpha2_BoundAPIResource(ref),
 		"github.com/kcp-dev/sdk/apis/apis/v1alpha2.BoundAPIResourceSchema":                      schema_sdk_apis_apis_v1alpha2_BoundAPIResourceSchema(ref),
 		"github.com/kcp-dev/sdk/apis/apis/v1alpha2.ExportBindingReference":                      schema_sdk_apis_apis_v1alpha2_ExportBindingReference(ref),
+		"github.com/kcp-dev/sdk/apis/apis/v1alpha2.FilteredAPIExportEndpoint":                   schema_sdk_apis_apis_v1alpha2_FilteredAPIExportEndpoint(ref),
+		"github.com/kcp-dev/sdk/apis/apis/v1alpha2.FilteredAPIExportEndpointSlice":              schema_sdk_apis_apis_v1alpha2_FilteredAPIExportEndpointSlice(ref),
+		"github.com/kcp-dev/sdk/apis/apis/v1alpha2.FilteredAPIExportEndpointSliceList":          schema_sdk_apis_apis_v1alpha2_FilteredAPIExportEndpointSliceList(ref),
+		"github.com/kcp-dev/sdk/apis/apis/v1alpha2.FilteredAPIExportEndpointSliceSpec":          schema_sdk_apis_apis_v1alpha2_FilteredAPIExportEndpointSliceSpec(ref),
+		"github.com/kcp-dev/sdk/apis/apis/v1alpha2.FilteredAPIExportEndpointSliceStatus":        schema_sdk_apis_apis_v1alpha2_FilteredAPIExportEndpointSliceStatus(ref),
+		"github.com/kcp-dev/sdk/apis/apis/v1alpha2.FilteredAPIExportObjectSelector":             schema_sdk_apis_apis_v1alpha2_FilteredAPIExportObjectSelector(ref),
 		"github.com/kcp-dev/sdk/apis/apis/v1alpha2.GroupResource":                               schema_sdk_apis_apis_v1alpha2_GroupResource(ref),
 		"github.com/kcp-dev/sdk/apis/apis/v1alpha2.Identity":                                    schema_sdk_apis_apis_v1alpha2_Identity(ref),
 		"github.com/kcp-dev/sdk/apis/apis/v1alpha2.LocalAPIExportPolicy":                        schema_sdk_apis_apis_v1alpha2_LocalAPIExportPolicy(ref),
@@ -2547,6 +2553,256 @@ func schema_sdk_apis_apis_v1alpha2_ExportBindingReference(ref common.ReferenceCa
 				Required: []string{"name"},
 			},
 		},
+	}
+}
+
+func schema_sdk_apis_apis_v1alpha2_FilteredAPIExportEndpoint(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "APIExportEndpoint contains the endpoint information of an APIExport service for a specific shard.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"url": {
+						SchemaProps: spec.SchemaProps{
+							Description: "url is an APIExport virtual workspace URL.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"url"},
+			},
+		},
+	}
+}
+
+func schema_sdk_apis_apis_v1alpha2_FilteredAPIExportEndpointSlice(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "FilteredAPIExportEndpointSlice is a sink for the endpoints of an APIExport. These endpoints can be filtered by a Partition. They get consumed by the managers to start controllers and informers for the respective APIExport services.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Description: "spec holds the desired state: - the targeted APIExport - the label-based object selector",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/kcp-dev/sdk/apis/apis/v1alpha2.FilteredAPIExportEndpointSliceSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status communicates the observed state: the filtered list of endpoints for the APIExport service.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/kcp-dev/sdk/apis/apis/v1alpha2.FilteredAPIExportEndpointSliceStatus"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/kcp-dev/sdk/apis/apis/v1alpha2.FilteredAPIExportEndpointSliceSpec", "github.com/kcp-dev/sdk/apis/apis/v1alpha2.FilteredAPIExportEndpointSliceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
+func schema_sdk_apis_apis_v1alpha2_FilteredAPIExportEndpointSliceList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "FilteredAPIExportEndpointSliceList is a list of FilteredAPIExportEndpointSlice resources.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/kcp-dev/sdk/apis/apis/v1alpha2.FilteredAPIExportEndpointSlice"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"metadata", "items"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/kcp-dev/sdk/apis/apis/v1alpha2.FilteredAPIExportEndpointSlice", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+	}
+}
+
+func schema_sdk_apis_apis_v1alpha2_FilteredAPIExportEndpointSliceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "FilteredAPIExportEndpointSliceSpec defines the desired state of the FilteredAPIExportEndpointSlice.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"export": {
+						SchemaProps: spec.SchemaProps{
+							Description: "export points to the API export.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/kcp-dev/sdk/apis/apis/v1alpha2.ExportBindingReference"),
+						},
+					},
+					"objectSelector": {
+						SchemaProps: spec.SchemaProps{
+							Description: "objectSelector TBD",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/kcp-dev/sdk/apis/apis/v1alpha2.FilteredAPIExportObjectSelector"),
+						},
+					},
+				},
+				Required: []string{"export"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/kcp-dev/sdk/apis/apis/v1alpha2.ExportBindingReference", "github.com/kcp-dev/sdk/apis/apis/v1alpha2.FilteredAPIExportObjectSelector"},
+	}
+}
+
+func schema_sdk_apis_apis_v1alpha2_FilteredAPIExportEndpointSliceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "APIExportEndpointSliceStatus defines the observed state of APIExportEndpointSlice.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"conditions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "conditions is a list of conditions that apply to the FilteredAPIExportEndpointSlice.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/kcp-dev/sdk/apis/third_party/conditions/apis/conditions/v1alpha1.Condition"),
+									},
+								},
+							},
+						},
+					},
+					"endpoints": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"url",
+								},
+								"x-kubernetes-list-type": "map",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "endpoints contains all the URLs of the APIExport service.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/kcp-dev/sdk/apis/apis/v1alpha2.FilteredAPIExportEndpoint"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/kcp-dev/sdk/apis/apis/v1alpha2.FilteredAPIExportEndpoint", "github.com/kcp-dev/sdk/apis/third_party/conditions/apis/conditions/v1alpha1.Condition"},
+	}
+}
+
+func schema_sdk_apis_apis_v1alpha2_FilteredAPIExportObjectSelector(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"matchLabels": {
+						SchemaProps: spec.SchemaProps{
+							Description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed.",
+							Type:        []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"matchExpressions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "matchExpressions is a list of label selector requirements. The requirements are ANDed.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelectorRequirement"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelectorRequirement"},
 	}
 }
 

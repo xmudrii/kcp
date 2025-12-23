@@ -27,6 +27,8 @@ type ClusterInterface interface {
 	APIBindings() APIBindingClusterInformer
 	// APIExports returns a APIExportClusterInformer.
 	APIExports() APIExportClusterInformer
+	// FilteredAPIExportEndpointSlices returns a FilteredAPIExportEndpointSliceClusterInformer.
+	FilteredAPIExportEndpointSlices() FilteredAPIExportEndpointSliceClusterInformer
 }
 
 type version struct {
@@ -49,11 +51,18 @@ func (v *version) APIExports() APIExportClusterInformer {
 	return &aPIExportClusterInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
 }
 
+// FilteredAPIExportEndpointSlices returns a FilteredAPIExportEndpointSliceClusterInformer.
+func (v *version) FilteredAPIExportEndpointSlices() FilteredAPIExportEndpointSliceClusterInformer {
+	return &filteredAPIExportEndpointSliceClusterInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
+}
+
 type Interface interface {
 	// APIBindings returns a APIBindingInformer.
 	APIBindings() APIBindingInformer
 	// APIExports returns a APIExportInformer.
 	APIExports() APIExportInformer
+	// FilteredAPIExportEndpointSlices returns a FilteredAPIExportEndpointSliceInformer.
+	FilteredAPIExportEndpointSlices() FilteredAPIExportEndpointSliceInformer
 }
 
 type scopedVersion struct {
@@ -75,4 +84,9 @@ func (v *scopedVersion) APIBindings() APIBindingInformer {
 // APIExports returns a APIExportInformer.
 func (v *scopedVersion) APIExports() APIExportInformer {
 	return &aPIExportScopedInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
+}
+
+// FilteredAPIExportEndpointSlices returns a FilteredAPIExportEndpointSliceInformer.
+func (v *scopedVersion) FilteredAPIExportEndpointSlices() FilteredAPIExportEndpointSliceInformer {
+	return &filteredAPIExportEndpointSliceScopedInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
 }

@@ -37,6 +37,10 @@ func (c *FakeApisV1alpha2) APIExports() v1alpha2.APIExportInterface {
 	return newFakeAPIExports(c)
 }
 
+func (c *FakeApisV1alpha2) FilteredAPIExportEndpointSlices() v1alpha2.FilteredAPIExportEndpointSliceInterface {
+	return newFakeFilteredAPIExportEndpointSlices(c)
+}
+
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeApisV1alpha2) RESTClient() rest.Interface {

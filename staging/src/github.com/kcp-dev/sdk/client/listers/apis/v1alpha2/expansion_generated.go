@@ -33,3 +33,11 @@ type APIExportClusterListerExpansion interface{}
 // APIExportListerExpansion allows custom methods to be added to
 // APIExportLister.
 type APIExportListerExpansion interface{}
+
+// FilteredAPIExportEndpointSliceClusterListerExpansion allows custom methods to be added to
+// FilteredAPIExportEndpointSliceClusterLister.
+type FilteredAPIExportEndpointSliceClusterListerExpansion interface{}
+
+// FilteredAPIExportEndpointSliceListerExpansion allows custom methods to be added to
+// FilteredAPIExportEndpointSliceLister.
+type FilteredAPIExportEndpointSliceListerExpansion interface{}

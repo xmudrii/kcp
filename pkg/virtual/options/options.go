@@ -27,6 +27,7 @@ import (
 	kcpinformers "github.com/kcp-dev/sdk/client/informers/externalversions"
 
 	apiexportoptions "github.com/kcp-dev/kcp/pkg/virtual/apiexport/options"
+	filteredapiexportoptions "github.com/kcp-dev/kcp/pkg/virtual/filteredapiexport/options"
 	"github.com/kcp-dev/kcp/pkg/virtual/framework/rootapiserver"
 	initializingworkspacesoptions "github.com/kcp-dev/kcp/pkg/virtual/initializingworkspaces/options"
 	replicationoptions "github.com/kcp-dev/kcp/pkg/virtual/replication/options"
@@ -37,6 +38,7 @@ const virtualWorkspacesFlagPrefix = "virtual-workspaces-"
 
 type Options struct {
 	APIExport              *apiexportoptions.APIExport
+	FilteredAPIExport      *filteredapiexportoptions.FilteredAPIExport
 	InitializingWorkspaces *initializingworkspacesoptions.InitializingWorkspaces
 	TerminatingWorkspaces  *terminatingworkspaceoptions.TerminatingWorkspaces
 }
@@ -53,6 +55,7 @@ func (o *Options) Validate() []error {
 	var errs []error
 
 	errs = append(errs, o.APIExport.Validate(virtualWorkspacesFlagPrefix)...)
+	errs = append(errs, o.FilteredAPIExport.Validate(virtualWorkspacesFlagPrefix)...)
 	errs = append(errs, o.InitializingWorkspaces.Validate(virtualWorkspacesFlagPrefix)...)
 	errs = append(errs, o.TerminatingWorkspaces.Validate(virtualWorkspacesFlagPrefix)...)
 
@@ -72,6 +75,11 @@ func (o *Options) NewVirtualWorkspaces(
 	wildcardKcpInformers, cachedKcpInformers kcpinformers.SharedInformerFactory,
 ) ([]rootapiserver.NamedVirtualWorkspace, error) {
 	apiexports, err := o.APIExport.NewVirtualWorkspaces(rootPathPrefix, config, cachedKcpInformers, wildcardKcpInformers)
+	if err != nil {
+		return nil, err
+	}
+
+	filteredAPIExports, err := o.FilteredAPIExport.NewVirtualWorkspaces(rootPathPrefix, config, cachedKcpInformers, wildcardKcpInformers)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +104,7 @@ func (o *Options) NewVirtualWorkspaces(
 		return nil, err
 	}
 
-	all, err := Merge(apiexports, initializingworkspaces, replications, terminatingworkspaces)
+	all, err := Merge(apiexports, filteredAPIExports, initializingworkspaces, replications, terminatingworkspaces)
 	if err != nil {
 		return nil, err
 	}

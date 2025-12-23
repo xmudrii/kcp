@@ -134,6 +134,16 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apisv1alpha2.BoundAPIResourceSchemaApplyConfiguration{}
 	case v1alpha2.SchemeGroupVersion.WithKind("ExportBindingReference"):
 		return &apisv1alpha2.ExportBindingReferenceApplyConfiguration{}
+	case v1alpha2.SchemeGroupVersion.WithKind("FilteredAPIExportEndpoint"):
+		return &apisv1alpha2.FilteredAPIExportEndpointApplyConfiguration{}
+	case v1alpha2.SchemeGroupVersion.WithKind("FilteredAPIExportEndpointSlice"):
+		return &apisv1alpha2.FilteredAPIExportEndpointSliceApplyConfiguration{}
+	case v1alpha2.SchemeGroupVersion.WithKind("FilteredAPIExportEndpointSliceSpec"):
+		return &apisv1alpha2.FilteredAPIExportEndpointSliceSpecApplyConfiguration{}
+	case v1alpha2.SchemeGroupVersion.WithKind("FilteredAPIExportEndpointSliceStatus"):
+		return &apisv1alpha2.FilteredAPIExportEndpointSliceStatusApplyConfiguration{}
+	case v1alpha2.SchemeGroupVersion.WithKind("FilteredAPIExportObjectSelector"):
+		return &apisv1alpha2.FilteredAPIExportObjectSelectorApplyConfiguration{}
 	case v1alpha2.SchemeGroupVersion.WithKind("GroupResource"):
 		return &apisv1alpha2.GroupResourceApplyConfiguration{}
 	case v1alpha2.SchemeGroupVersion.WithKind("Identity"):

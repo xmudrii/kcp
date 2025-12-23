@@ -34,6 +34,7 @@ type ApisV1alpha2ClusterInterface interface {
 	ApisV1alpha2ClusterScoper
 	APIBindingsClusterGetter
 	APIExportsClusterGetter
+	FilteredAPIExportEndpointSlicesClusterGetter
 }
 
 type ApisV1alpha2ClusterScoper interface {
@@ -58,6 +59,10 @@ func (c *ApisV1alpha2ClusterClient) APIBindings() APIBindingClusterInterface {
 
 func (c *ApisV1alpha2ClusterClient) APIExports() APIExportClusterInterface {
 	return &aPIExportsClusterInterface{clientCache: c.clientCache}
+}
+
+func (c *ApisV1alpha2ClusterClient) FilteredAPIExportEndpointSlices() FilteredAPIExportEndpointSliceClusterInterface {
+	return &filteredAPIExportEndpointSlicesClusterInterface{clientCache: c.clientCache}
 }
 
 // NewForConfig creates a new ApisV1alpha2ClusterClient for the given config.
