@@ -25,6 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
+	clientgofeaturegate "k8s.io/client-go/features"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/utils/clock"
 )
@@ -42,6 +43,17 @@ type Config struct {
 
 	// Process can process a popped Deltas.
 	Process cache.ProcessFunc
+
+	// ProcessBatch can process a batch of popped Deltas, which should return `TransactionError` if not all items
+	// in the batch were successfully processed.
+	//
+	// For batch processing to be used:
+	// * ProcessBatch must be non-nil
+	// * Queue must implement QueueWithBatch
+	// * The client InOrderInformersBatchProcess feature gate must be enabled
+	//
+	// If any of those are false, Process is used and no batch processing is done.
+	ProcessBatch cache.ProcessBatchFunc
 
 	// ObjectType is an example object of the type this controller is
 	// expected to handle.
@@ -161,8 +173,22 @@ func (c *controller) RunWithContext(ctx context.Context) {
 // to make sure that we don't end up processing the same object multiple times
 // concurrently.
 func (c *controller) processLoop(ctx context.Context) {
+	useBatchProcess := false
+	batchQueue, ok := c.config.Queue.(cache.QueueWithBatch)
+	if ok && c.config.ProcessBatch != nil && clientgofeaturegate.FeatureGates().Enabled(clientgofeaturegate.InOrderInformersBatchProcess) {
+		useBatchProcess = true
+	}
 	for {
-		obj, err := c.config.Queue.Pop(cache.PopProcessFunc(c.config.Process))
+		var (
+			obj interface{}
+			err error
+		)
+		if useBatchProcess {
+			err = batchQueue.PopBatch(c.config.ProcessBatch)
+		} else {
+			// otherwise fallback to non-batch process behavior
+			obj, err = c.config.Queue.Pop(cache.PopProcessFunc(c.config.Process))
+		}
 		if err != nil {
 			if err == cache.ErrFIFOClosed {
 				return
